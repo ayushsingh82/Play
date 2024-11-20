@@ -46,16 +46,16 @@ function Landing() {
             
             <h1 className="text-7xl font-bold mb-8 leading-tight">
               <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                Predict & Win with
+                The Future of
               </span>
               <br />
               <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                Meme Coin Baskets
+                Meme Coin Trading
               </span>
             </h1>
             
             <p className="text-2xl text-blue-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Join the future of meme coin trading. Predict trends, win rewards, and become a crypto oracle in just 5 minutes! 🚀
+              Join thousands of traders in predicting meme coin trends. Make predictions, earn rewards, and become a crypto oracle! 🚀
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
@@ -63,56 +63,28 @@ function Landing() {
                 to="/app" 
                 className="group relative overflow-hidden px-12 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-lg font-medium hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25"
               >
-                <span className="relative z-10">Launch dApp</span>
+                <span className="relative z-10">Launch App</span>
                 <div className="absolute inset-0 -translate-y-full group-hover:translate-y-0 bg-gradient-to-r from-blue-600 to-cyan-600 transition-transform duration-300"></div>
               </Link>
-              <a 
-                href="#how-it-works"
-                className="px-12 py-4 bg-white/10 border border-white/20 rounded-xl text-lg font-medium hover:bg-white/20 transition-all duration-300 backdrop-blur-sm"
-              >
-                Learn More
-              </a>
-            </div>
-
-            {/* Live Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-32">
-              {[
-                { symbol: 'DOGE', price: '$0.12', change: '+5.2%', volume: '$2.1M' },
-                { symbol: 'SHIB', price: '$0.00003', change: '+3.8%', volume: '$1.8M' },
-                { symbol: 'PEPE', price: '$0.0000012', change: '+8.1%', volume: '$1.5M' },
-                { symbol: 'FLOKI', price: '$0.0003', change: '+6.5%', volume: '$1.2M' }
-              ].map((coin) => (
-                <div key={coin.symbol} 
-                  className="relative group p-6 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity duration-300"></div>
-                  <div className="relative">
-                    <div className="text-2xl font-bold text-blue-400 mb-2">{coin.symbol}</div>
-                    <div className="text-white mb-1">{coin.price}</div>
-                    <div className="text-emerald-400 text-sm">{coin.change}</div>
-                    <div className="text-blue-300 text-sm mt-2">Vol: {coin.volume}</div>
-                  </div>
-                </div>
-              ))}
             </div>
 
             {/* Features */}
-            <div id="how-it-works" className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {[
                 {
                   icon: "⚡️",
-                  title: "Quick Rounds",
-                  description: "5-minute prediction rounds for fast-paced action and quick rewards"
+                  title: "5-Minute Rounds",
+                  description: "Quick prediction rounds for fast-paced action"
                 },
                 {
                   icon: "🎯",
-                  title: "Simple Betting",
-                  description: "Pick your basket and place your bet with one click"
+                  title: "Easy Predictions",
+                  description: "Simple interface to place your bets"
                 },
                 {
                   icon: "💰",
                   title: "Instant Rewards",
-                  description: "Automatically receive rewards when your prediction is correct"
+                  description: "Automatically receive rewards when you win"
                 }
               ].map((feature) => (
                 <div key={feature.title} 

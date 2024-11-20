@@ -3,33 +3,41 @@ import { ethers } from 'ethers';
 
 const Web3Context = createContext();
 
-// This will be updated after contract deployment
-const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000";
-
 export function Web3Provider({ children }) {
   const [account, setAccount] = useState(null);
   const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
+  // Initialize wallet connection
   useEffect(() => {
     const init = async () => {
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         setProvider(provider);
+        
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', (accounts) => {
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+          } else {
+            setAccount(null);
+          }
+        });
+
+        // Listen for chain changes
+        window.ethereum.on('chainChanged', () => {
+          window.location.reload();
+        });
 
         try {
-          // Dynamically import contract ABI
-          const { abi } = await import('../contracts/MemeTokenPrediction.json');
-          
-          const contract = new ethers.Contract(
-            CONTRACT_ADDRESS,
-            abi,
-            provider.getSigner()
-          );
-          setContract(contract);
+          const accounts = await provider.listAccounts();
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+          }
         } catch (error) {
-          console.warn('Contract ABI not found, dApp in development mode');
+          console.warn('No account connected');
         }
         
         setIsInitialized(true);
@@ -37,32 +45,75 @@ export function Web3Provider({ children }) {
     };
 
     init();
+
+    // Cleanup listeners
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', () => {});
+        window.ethereum.removeListener('chainChanged', () => {});
+      }
+    };
   }, []);
 
+  // Connect wallet function
   const connectWallet = async () => {
     try {
+      setIsConnecting(true);
+      if (!window.ethereum) {
+        alert('Please install MetaMask!');
+        return;
+      }
+
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
+      
       setAccount(accounts[0]);
+      
+      // Switch to Codex testnet
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x1E14' }], // 7700 in hex
+        });
+      } catch (switchError) {
+        // If the chain hasn't been added to MetaMask
+        if (switchError.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: '0x1E14',
+                chainName: 'Codex Testnet',
+                nativeCurrency: {
+                  name: 'CODEX',
+                  symbol: 'CODEX',
+                  decimals: 18
+                },
+                rpcUrls: ['https://testnet.codex.storage'],
+                blockExplorerUrls: ['https://testnet.codexscan.io']
+              }]
+            });
+          } catch (addError) {
+            console.error('Error adding chain:', addError);
+          }
+        }
+      }
     } catch (error) {
       console.error('Error connecting wallet:', error);
+    } finally {
+      setIsConnecting(false);
     }
   };
 
-  const placeBet = async (bucketIndex, amount) => {
-    if (!contract) {
-      console.error('Contract not initialized');
-      return false;
-    }
-
+  // Disconnect wallet function
+  const disconnectWallet = async () => {
     try {
-      const tx = await contract.placeBet(bucketIndex, ethers.utils.parseEther(amount));
-      await tx.wait();
-      return true;
+      setAccount(null);
+      // Clear any local storage or state related to the wallet connection
+      localStorage.removeItem('walletConnected');
     } catch (error) {
-      console.error('Error placing bet:', error);
-      return false;
+      console.error('Error disconnecting wallet:', error);
     }
   };
 
@@ -70,10 +121,11 @@ export function Web3Provider({ children }) {
     <Web3Context.Provider 
       value={{ 
         account, 
-        connectWallet, 
-        contract, 
-        placeBet,
-        isInitialized 
+        connectWallet,
+        disconnectWallet,
+        provider,
+        isInitialized,
+        isConnecting
       }}
     >
       {children}
