@@ -1,124 +1,119 @@
-import { useState, useEffect } from 'react';
-import { useWeb3 } from '../context/Web3Context';
-import BettingModal from '../components/BettingModal';
+import { Link } from 'react-router-dom';
 
 function Home() {
-  const { account, connectWallet } = useWeb3();
-  const [selectedBasket, setSelectedBasket] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [prices, setPrices] = useState({});
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
-
-  const memeBaskets = [
+  const memeCoins = [
     {
-      id: 1,
-      name: 'DOGE Basket',
-      symbol: 'DOGE',
-      description: 'Much wow, very profit',
-      color: 'from-yellow-400 to-yellow-600'
+      name: 'DOGE',
+      image: '/images/doge.png',
+      color: 'from-yellow-400 to-yellow-600',
+      price: '$0.12',
+      change: '+5.2%'
     },
     {
-      id: 2,
-      name: 'SHIB Basket',
-      symbol: 'SHIB',
-      description: 'To the moon with Shiba',
-      color: 'from-red-400 to-red-600'
+      name: 'SHIB',
+      image: '/images/shib.png',
+      color: 'from-red-400 to-red-600',
+      price: '$0.00003',
+      change: '+3.8%'
     },
     {
-      id: 3,
-      name: 'PEPE Basket',
-      symbol: 'PEPE',
-      description: 'Rare Pepes only',
-      color: 'from-green-400 to-green-600'
+      name: 'PEPE',
+      image: '/images/pepe.png',
+      color: 'from-green-400 to-green-600',
+      price: '$0.0000012',
+      change: '+8.1%'
     },
     {
-      id: 4,
-      name: 'FLOKI Basket',
-      symbol: 'FLOKI',
-      description: 'Viking-approved gains',
-      color: 'from-blue-400 to-blue-600'
+      name: 'FLOKI',
+      image: '/images/floki.png',
+      color: 'from-blue-400 to-blue-600',
+      price: '$0.0003',
+      change: '+6.5%'
     }
   ];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 300));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleBasketSelect = (basket) => {
-    if (!account) {
-      connectWallet();
-      return;
-    }
-    setSelectedBasket(basket);
-    setIsModalOpen(true);
-  };
-
   return (
-    <div className="min-h-screen bg-blue-950 text-white py-8">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-            Meme Coin Baskets
-          </h1>
-          <div className="flex justify-center items-center gap-4 text-xl">
-            <span className="text-blue-200">Next round ends in:</span>
-            <span className="bg-blue-900/50 px-4 py-2 rounded-lg font-mono">
-              {formatTime(timeLeft)}
-            </span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 text-white">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="relative container mx-auto px-4 pt-32 pb-20">
+          <div className="text-center mb-20">
+            <h1 className="text-7xl font-bold mb-8">
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                Trade the Future of
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                Meme Coins
+              </span>
+            </h1>
+            <p className="text-2xl text-blue-200 mb-12 max-w-3xl mx-auto">
+              Predict which meme coin will moon next and earn rewards in 5-minute trading rounds! 🚀
+            </p>
+            <Link
+              to="/app/bet"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-xl font-semibold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25"
+            >
+              Start Trading
+              <svg className="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Meme Coins Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+            {memeCoins.map((coin) => (
+              <div key={coin.name} className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+                <div className="relative bg-blue-900/20 backdrop-blur-sm rounded-2xl p-6 border border-blue-700/50 hover:border-blue-500 transition-all">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={`text-2xl font-bold bg-gradient-to-r ${coin.color} bg-clip-text text-transparent`}>
+                      {coin.name}
+                    </div>
+                    <div className="text-right">
+                      <div className="text-white">{coin.price}</div>
+                      <div className="text-emerald-400 text-sm">{coin.change}</div>
+                    </div>
+                  </div>
+                  <div className="w-24 h-24 mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                    <img 
+                      src={coin.image} 
+                      alt={coin.name} 
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <Link
+                    to="/app/bet"
+                    className={`block w-full py-3 text-center bg-gradient-to-r ${coin.color} rounded-lg text-white font-semibold hover:opacity-90 transition-opacity`}
+                  >
+                    Trade Now
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              { label: 'Total Volume', value: '$1M+', icon: '📈' },
+              { label: 'Active Users', value: '10K+', icon: '👥' },
+              { label: 'Average Returns', value: '25%', icon: '💰' }
+            ].map((stat) => (
+              <div key={stat.label} className="bg-blue-900/20 backdrop-blur-sm rounded-xl p-8 border border-blue-700/50">
+                <div className="text-3xl mb-4">{stat.icon}</div>
+                <div className="text-2xl font-bold text-white mb-2">{stat.value}</div>
+                <div className="text-blue-200">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {memeBaskets.map((basket) => (
-            <div 
-              key={basket.id}
-              className="bg-blue-900/20 rounded-xl p-6 border border-blue-800/50 backdrop-blur-sm hover:border-blue-600 transition-all cursor-pointer"
-              onClick={() => handleBasketSelect(basket)}
-            >
-              <div className={`text-4xl mb-4 bg-gradient-to-r ${basket.color} bg-clip-text text-transparent`}>
-                {basket.symbol}
-              </div>
-              <h3 className="text-xl font-semibold mb-2">{basket.name}</h3>
-              <p className="text-blue-200 mb-4">{basket.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-blue-300">Current Price:</span>
-                <span className="text-lg font-semibold">${prices[basket.symbol] || '0.00'}</span>
-              </div>
-              <button 
-                className={`w-full mt-4 py-2 px-4 rounded-lg bg-gradient-to-r ${basket.color} text-white font-semibold hover:opacity-90 transition-opacity`}
-              >
-                Select Basket
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {!account && (
-          <div className="text-center">
-            <button
-              onClick={connectWallet}
-              className="btn bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-3 rounded-xl"
-            >
-              Connect Wallet to Start Betting
-            </button>
-          </div>
-        )}
-
-        <BettingModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          basket={selectedBasket}
-        />
       </div>
     </div>
   );

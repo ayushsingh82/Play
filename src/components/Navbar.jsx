@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useWeb3 } from '../context/Web3Context'
 import { useState, useRef, useEffect } from 'react';
 
@@ -6,6 +6,7 @@ function Navbar() {
   const { account, connectWallet, disconnectWallet, isConnecting } = useWeb3();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const location = useLocation();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -21,26 +22,29 @@ function Navbar() {
     };
   }, []);
 
+  const isActive = (path) => location.pathname === path;
+
   return (
     <nav className="border-b border-blue-800/50 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
-            <Link to="/app" className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              MemeBaskets
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 group-hover:scale-105 transition-transform"></div>
+              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                MemeBaskets
+              </span>
             </Link>
             <div className="flex items-center space-x-6">
               <Link 
-                to="/app"
-                className="text-blue-200 hover:text-white transition-colors"
+                to="/app/bet"
+                className={`transition-colors ${
+                  isActive('/app/bet') 
+                    ? 'text-white font-medium' 
+                    : 'text-blue-200 hover:text-white'
+                }`}
               >
-                Dashboard
-              </Link>
-              <Link 
-                to="/app/markets"
-                className="text-blue-200 hover:text-white transition-colors"
-              >
-                Markets
+                Bet Now
               </Link>
             </div>
           </div>
@@ -103,7 +107,7 @@ function Navbar() {
         </div>
       </div>
     </nav>
-  )
+  );
 }
 
 export default Navbar; 
