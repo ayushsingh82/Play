@@ -1,29 +1,70 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 function Landing() {
+  const [isVisible, setIsVisible] = useState(false);
+  const { ref: statsRef, inView: statsInView } = useInView({ triggerOnce: true });
+  const { ref: tradingRef, inView: tradingInView } = useInView({ triggerOnce: true });
+  const { ref: communityRef, inView: communityInView } = useInView({ triggerOnce: true });
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  const memeCoins = [
+    {
+      name: 'DOGE',
+      image: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
+      delay: '0'
+    },
+    {
+      name: 'SHIB',
+      image: 'https://assets.coingecko.com/coins/images/11939/large/shiba.png',
+      delay: '100'
+    },
+    {
+      name: 'PEPE',
+      image: 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg',
+      delay: '200'
+    },
+    {
+      name: 'FLOKI',
+      image: 'https://assets.coingecko.com/coins/images/16746/large/PNG_image.png',
+      delay: '300'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 text-white overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       {/* Navigation */}
       <nav className="relative z-10 border-b border-white/10 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500"></div>
+            <div className="flex items-center space-x-2 group">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 group-hover:scale-110 transition-transform duration-300"></div>
               <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 MemeBaskets
               </span>
             </div>
             <Link 
               to="/app" 
-              className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 backdrop-blur-sm"
+              className="relative px-6 py-2.5 group overflow-hidden rounded-lg transition-all duration-300"
             >
-              Launch App →
+              <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors"></div>
+              <div className="absolute inset-0 border border-white/20 rounded-lg group-hover:scale-105 transition-transform duration-300"></div>
+              <span className="relative z-10 flex items-center">
+                Launch App 
+                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </span>
             </Link>
           </div>
         </div>
@@ -33,18 +74,36 @@ function Landing() {
       <div className="relative">
         <div className="container mx-auto px-4 pt-20 pb-32">
           <div className="max-w-5xl mx-auto text-center">
-            <div className="animate-float mb-12">
-              <div className="relative inline-block">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-3xl opacity-50 scale-150"></div>
-                <img 
-                  src="https://assets.coingecko.com/coins/images/5/large/dogecoin.png"
-                  alt="Meme Coins" 
-                  className="relative w-40 h-40"
-                />
+            {/* Floating Coins */}
+            <div className="relative h-40 mb-12">
+              <div className="absolute left-1/2 transform -translate-x-1/2">
+                {memeCoins.map((coin, index) => (
+                  <div
+                    key={coin.name}
+                    className="absolute"
+                    style={{
+                      transform: `rotate(${index * 90}deg) translateX(60px)`,
+                      opacity: isVisible ? 1 : 0,
+                      transition: `all 0.6s ease-out ${coin.delay}ms`
+                    }}
+                  >
+                    <img 
+                      src={coin.image}
+                      alt={coin.name}
+                      className="w-16 h-16 rounded-full animate-float"
+                      style={{ animationDelay: `${coin.delay}ms` }}
+                    />
+                  </div>
+                ))}
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur-xl animate-pulse"></div>
               </div>
             </div>
-            
-            <h1 className="text-7xl font-bold mb-8 leading-tight">
+
+            <h1 
+              className={`text-7xl font-bold mb-8 leading-tight transition-all duration-700 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}
+            >
               <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 The Future of
               </span>
@@ -54,22 +113,33 @@ function Landing() {
               </span>
             </h1>
             
-            <p className="text-2xl text-blue-200 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p 
+              className={`text-2xl text-blue-200 mb-12 max-w-3xl mx-auto leading-relaxed transition-all duration-700 delay-200 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}
+            >
               Join thousands of traders in predicting meme coin trends. Make predictions, earn rewards, and become a crypto oracle! 🚀
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+            <div 
+              className={`transition-all duration-700 delay-300 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}
+            >
               <Link 
                 to="/app" 
-                className="group relative overflow-hidden px-12 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-lg font-medium hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25"
+                className="group relative overflow-hidden px-12 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-lg font-medium hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 inline-flex items-center"
               >
                 <span className="relative z-10">Launch App</span>
+                <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
                 <div className="absolute inset-0 -translate-y-full group-hover:translate-y-0 bg-gradient-to-r from-blue-600 to-cyan-600 transition-transform duration-300"></div>
               </Link>
             </div>
 
             {/* Features */}
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-32">
               {[
                 {
                   icon: "⚡️",
@@ -86,9 +156,15 @@ function Landing() {
                   title: "Instant Rewards",
                   description: "Automatically receive rewards when you win"
                 }
-              ].map((feature) => (
-                <div key={feature.title} 
-                  className="group p-8 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm"
+              ].map((feature, index) => (
+                <div 
+                  key={feature.title}
+                  className={`group p-8 bg-white/5 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm transform hover:-translate-y-1 ${
+                    isVisible 
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-10'
+                  }`}
+                  style={{ transitionDelay: `${400 + index * 100}ms` }}
                 >
                   <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
@@ -98,6 +174,142 @@ function Landing() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Trading Stats Section */}
+      <div 
+        ref={statsRef}
+        className={`py-20 transition-all duration-1000 ${
+          statsInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {[
+              { value: '$10M+', label: 'Trading Volume' },
+              { value: '50K+', label: 'Active Traders' },
+              { value: '1M+', label: 'Predictions Made' },
+              { value: '$500K+', label: 'Rewards Distributed' }
+            ].map((stat, index) => (
+              <div 
+                key={stat.label}
+                className="text-center p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm"
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-blue-200">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* How Trading Works */}
+      <div 
+        ref={tradingRef}
+        className={`py-20 bg-gradient-to-b from-transparent to-blue-900/20 transition-all duration-1000 ${
+          tradingInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            How MemeBaskets Works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              {
+                step: '01',
+                title: 'Choose Your Basket',
+                description: 'Select from our curated collection of trending meme coins',
+                icon: '🎯'
+              },
+              {
+                step: '02',
+                title: 'Place Your Prediction',
+                description: 'Bet on which basket will perform best in the next 5 minutes',
+                icon: '⚡'
+              },
+              {
+                step: '03',
+                title: 'Win Rewards',
+                description: 'Earn rewards when your prediction is correct',
+                icon: '💰'
+              }
+            ].map((item, index) => (
+              <div 
+                key={item.step}
+                className="relative p-8 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm group hover:bg-white/10 transition-all duration-300"
+                style={{ transitionDelay: `${index * 200}ms` }}
+              >
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-2xl">
+                  {item.icon}
+                </div>
+                <div className="text-6xl font-bold text-white/10 absolute bottom-4 right-4">
+                  {item.step}
+                </div>
+                <h3 className="text-xl font-bold mb-4">{item.title}</h3>
+                <p className="text-blue-200">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Community Section */}
+      <div 
+        ref={communityRef}
+        className={`py-20 transition-all duration-1000 ${
+          communityInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            Join Our Growing Community
+          </h2>
+          <p className="text-xl text-blue-200 mb-12 max-w-2xl mx-auto">
+            Be part of the future of meme coin trading. Connect with traders, share strategies, and earn rewards together.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            {[
+              { label: 'Discord Members', value: '25K+' },
+              { label: 'Twitter Followers', value: '50K+' },
+              { label: 'Daily Active Users', value: '5K+' },
+              { label: 'Countries', value: '120+' }
+            ].map((stat, index) => (
+              <div 
+                key={stat.label}
+                className="p-6 bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm"
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="text-2xl font-bold text-white mb-2">{stat.value}</div>
+                <div className="text-blue-200">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-2xl p-12 text-center border border-white/10 backdrop-blur-sm">
+            <h2 className="text-3xl font-bold mb-6">Ready to Start Trading?</h2>
+            <p className="text-xl text-blue-200 mb-8">
+              Join thousands of traders and start predicting meme coin trends today!
+            </p>
+            <Link 
+              to="/app" 
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-lg font-medium hover:scale-105 transition-all duration-300"
+            >
+              Launch App
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
           </div>
         </div>
       </div>

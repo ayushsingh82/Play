@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useWeb3 } from '../context/Web3Context';
 import BettingModal from '../components/BettingModal';
 import axios from 'axios';
-import { createChart } from 'lightweight-charts';
+import { createChart, ColorType } from 'lightweight-charts';
 
 function BettingPage() {
   const { account, connectWallet } = useWeb3();
@@ -10,8 +10,9 @@ function BettingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300);
   const [priceData, setPriceData] = useState({});
+  const [chartData, setChartData] = useState({});
+  const [loading, setLoading] = useState(true);
   
-  // Create refs for each basket
   const chartRefs = {
     1: useRef(null),
     2: useRef(null),
@@ -58,13 +59,20 @@ function BettingPage() {
     }
   ];
 
-  // Fetch price data
+  // Fetch real-time price data
   useEffect(() => {
     const fetchPrices = async () => {
       try {
         const ids = memeBaskets.map(basket => basket.coingeckoId).join(',');
         const response = await axios.get(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
+          `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_last_updated_at=true`,
+          {
+            headers: {
+              'Accept': 'application/json',
+              // Add your CoinGecko API key if you have one
+              // 'X-CG-Pro-API-Key': 'YOUR_API_KEY'
+            }
+          }
         );
         setPriceData(response.data);
       } catch (error) {
@@ -73,68 +81,102 @@ function BettingPage() {
     };
 
     fetchPrices();
-    const interval = setInterval(fetchPrices, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
     return () => clearInterval(interval);
   }, []);
 
   // Fetch and create charts
   useEffect(() => {
-    const fetchChartData = async (coinId, basketId) => {
+    const fetchChartData = async (coinId) => {
       try {
         const response = await axios.get(
-          `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=1&interval=hourly`
+          `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=1&interval=hourly`,
+          {
+            headers: {
+              'Accept': 'application/json',
+              // 'X-CG-Pro-API-Key': 'YOUR_API_KEY'
+            }
+          }
         );
-
-        const chartData = response.data.prices.map(([timestamp, price]) => ({
+        return response.data.prices.map(([timestamp, price]) => ({
           time: timestamp / 1000,
           value: price
         }));
-
-        if (chartRefs[basketId]?.current) {
-          // Clear previous chart
-          chartRefs[basketId].current.innerHTML = '';
-          
-          const chart = createChart(chartRefs[basketId].current, {
-            width: 200,
-            height: 100,
-            layout: {
-              background: { color: 'transparent' },
-              textColor: '#8b9cc8',
-            },
-            grid: {
-              vertLines: { color: 'transparent' },
-              horzLines: { color: 'transparent' },
-            },
-            rightPriceScale: { visible: false },
-            timeScale: { visible: false },
-            handleScroll: false,
-            handleScale: false,
-          });
-
-          const lineSeries = chart.addLineSeries({
-            color: '#4f46e5',
-            lineWidth: 2,
-          });
-          lineSeries.setData(chartData);
-        }
       } catch (error) {
-        console.error('Error fetching chart data:', error);
+        console.error(`Error fetching chart data for ${coinId}:`, error);
+        return null;
       }
     };
 
-    memeBaskets.forEach((basket) => {
-      fetchChartData(basket.coingeckoId, basket.id);
-    });
-
-    // Cleanup function to handle component unmount
-    return () => {
-      Object.values(chartRefs).forEach(ref => {
-        if (ref.current) {
-          ref.current.innerHTML = '';
-        }
-      });
+    const createCharts = async () => {
+      setLoading(true);
+      try {
+        const chartDataPromises = memeBaskets.map(basket => 
+          fetchChartData(basket.coingeckoId)
+        );
+        const results = await Promise.all(chartDataPromises);
+        
+        const newChartData = {};
+        results.forEach((data, index) => {
+          if (data) {
+            newChartData[memeBaskets[index].id] = data;
+          }
+        });
+        setChartData(newChartData);
+      } catch (error) {
+        console.error('Error creating charts:', error);
+      } finally {
+        setLoading(false);
+      }
     };
+
+    createCharts();
   }, []);
+
+  // Create and update charts when data changes
+  useEffect(() => {
+    Object.entries(chartData).forEach(([basketId, data]) => {
+      const ref = chartRefs[basketId];
+      if (ref.current && data) {
+        ref.current.innerHTML = '';
+        
+        const chart = createChart(ref.current, {
+          width: ref.current.clientWidth,
+          height: 100,
+          layout: {
+            background: { type: ColorType.Solid, color: 'transparent' },
+            textColor: '#8b9cc8',
+          },
+          grid: {
+            vertLines: { visible: false },
+            horzLines: { visible: false },
+          },
+          rightPriceScale: { visible: false },
+          timeScale: { visible: false },
+          handleScroll: false,
+          handleScale: false,
+        });
+
+        const lineSeries = chart.addLineSeries({
+          color: '#4f46e5',
+          lineWidth: 2,
+          crosshairMarkerVisible: false,
+        });
+        lineSeries.setData(data);
+
+        // Handle resize
+        const handleResize = () => {
+          chart.applyOptions({ width: ref.current.clientWidth });
+        };
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          chart.remove();
+        };
+      }
+    });
+  }, [chartData]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -205,10 +247,18 @@ function BettingPage() {
                 </div>
 
                 {/* Price Chart */}
-                <div 
-                  ref={chartRefs[basket.id]}
-                  className="w-full h-[100px] mb-6"
-                />
+                <div className="relative w-full h-[100px] mb-6">
+                  {loading ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : (
+                    <div 
+                      ref={chartRefs[basket.id]}
+                      className="w-full h-full"
+                    />
+                  )}
+                </div>
                 
                 <p className="text-blue-200 mb-6">{basket.description}</p>
 
