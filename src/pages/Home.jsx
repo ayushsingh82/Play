@@ -4,28 +4,28 @@ function Home() {
   const memeCoins = [
     {
       name: 'DOGE',
-      image: '/images/doge.png',
+      image: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
       color: 'from-yellow-400 to-yellow-600',
       price: '$0.12',
       change: '+5.2%'
     },
     {
       name: 'SHIB',
-      image: '/images/shib.png',
+      image: 'https://assets.coingecko.com/coins/images/11939/large/shiba.png',
       color: 'from-red-400 to-red-600',
       price: '$0.00003',
       change: '+3.8%'
     },
     {
       name: 'PEPE',
-      image: '/images/pepe.png',
+      image: 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg',
       color: 'from-green-400 to-green-600',
       price: '$0.0000012',
       change: '+8.1%'
     },
     {
       name: 'FLOKI',
-      image: '/images/floki.png',
+      image: 'https://assets.coingecko.com/coins/images/16746/large/PNG_image.png',
       color: 'from-blue-400 to-blue-600',
       price: '$0.0003',
       change: '+6.5%'

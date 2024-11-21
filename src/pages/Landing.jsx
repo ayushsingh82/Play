@@ -37,7 +37,7 @@ function Landing() {
               <div className="relative inline-block">
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-3xl opacity-50 scale-150"></div>
                 <img 
-                  src="/meme-coins.png" 
+                  src="https://assets.coingecko.com/coins/images/5/large/dogecoin.png"
                   alt="Meme Coins" 
                   className="relative w-40 h-40"
                 />

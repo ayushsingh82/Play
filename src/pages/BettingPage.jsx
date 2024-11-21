@@ -1,51 +1,140 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWeb3 } from '../context/Web3Context';
 import BettingModal from '../components/BettingModal';
+import axios from 'axios';
+import { createChart } from 'lightweight-charts';
 
 function BettingPage() {
   const { account, connectWallet } = useWeb3();
   const [selectedBasket, setSelectedBasket] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const [timeLeft, setTimeLeft] = useState(300);
+  const [priceData, setPriceData] = useState({});
+  
+  // Create refs for each basket
+  const chartRefs = {
+    1: useRef(null),
+    2: useRef(null),
+    3: useRef(null),
+    4: useRef(null)
+  };
 
   const memeBaskets = [
     {
       id: 1,
       name: 'DOGE Basket',
       symbol: 'DOGE',
+      coingeckoId: 'dogecoin',
+      image: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
       description: 'Much wow, very profit',
-      color: 'from-yellow-400 to-yellow-600',
-      price: '$0.12',
-      change: '+5.2%'
+      color: 'from-yellow-400 to-yellow-600'
     },
     {
       id: 2,
       name: 'SHIB Basket',
       symbol: 'SHIB',
+      coingeckoId: 'shiba-inu',
+      image: 'https://assets.coingecko.com/coins/images/11939/large/shiba.png',
       description: 'To the moon with Shiba',
-      color: 'from-red-400 to-red-600',
-      price: '$0.00003',
-      change: '+3.8%'
+      color: 'from-red-400 to-red-600'
     },
     {
       id: 3,
       name: 'PEPE Basket',
       symbol: 'PEPE',
+      coingeckoId: 'pepe',
+      image: 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg',
       description: 'Rare Pepes only',
-      color: 'from-green-400 to-green-600',
-      price: '$0.0000012',
-      change: '+8.1%'
+      color: 'from-green-400 to-green-600'
     },
     {
       id: 4,
       name: 'FLOKI Basket',
       symbol: 'FLOKI',
+      coingeckoId: 'floki',
+      image: 'https://assets.coingecko.com/coins/images/16746/large/PNG_image.png',
       description: 'Viking-approved gains',
-      color: 'from-blue-400 to-blue-600',
-      price: '$0.0003',
-      change: '+6.5%'
+      color: 'from-blue-400 to-blue-600'
     }
   ];
+
+  // Fetch price data
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const ids = memeBaskets.map(basket => basket.coingeckoId).join(',');
+        const response = await axios.get(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`
+        );
+        setPriceData(response.data);
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+      }
+    };
+
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch and create charts
+  useEffect(() => {
+    const fetchChartData = async (coinId, basketId) => {
+      try {
+        const response = await axios.get(
+          `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=1&interval=hourly`
+        );
+
+        const chartData = response.data.prices.map(([timestamp, price]) => ({
+          time: timestamp / 1000,
+          value: price
+        }));
+
+        if (chartRefs[basketId]?.current) {
+          // Clear previous chart
+          chartRefs[basketId].current.innerHTML = '';
+          
+          const chart = createChart(chartRefs[basketId].current, {
+            width: 200,
+            height: 100,
+            layout: {
+              background: { color: 'transparent' },
+              textColor: '#8b9cc8',
+            },
+            grid: {
+              vertLines: { color: 'transparent' },
+              horzLines: { color: 'transparent' },
+            },
+            rightPriceScale: { visible: false },
+            timeScale: { visible: false },
+            handleScroll: false,
+            handleScale: false,
+          });
+
+          const lineSeries = chart.addLineSeries({
+            color: '#4f46e5',
+            lineWidth: 2,
+          });
+          lineSeries.setData(chartData);
+        }
+      } catch (error) {
+        console.error('Error fetching chart data:', error);
+      }
+    };
+
+    memeBaskets.forEach((basket) => {
+      fetchChartData(basket.coingeckoId, basket.id);
+    });
+
+    // Cleanup function to handle component unmount
+    return () => {
+      Object.values(chartRefs).forEach(ref => {
+        if (ref.current) {
+          ref.current.innerHTML = '';
+        }
+      });
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,43 +169,70 @@ function BettingPage() {
 
         {/* Baskets Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {memeBaskets.map((basket) => (
-            <div
-              key={basket.id}
-              className="group bg-blue-900/20 rounded-xl p-6 border border-blue-800/50 backdrop-blur-sm hover:border-blue-600 transition-all"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className={`text-3xl font-bold bg-gradient-to-r ${basket.color} bg-clip-text text-transparent`}>
-                  {basket.symbol}
+          {memeBaskets.map((basket) => {
+            const price = priceData[basket.coingeckoId]?.usd || 0;
+            const change24h = priceData[basket.coingeckoId]?.usd_24h_change || 0;
+            
+            return (
+              <div
+                key={basket.id}
+                className="group bg-blue-900/20 rounded-xl p-6 border border-blue-800/50 backdrop-blur-sm hover:border-blue-600 transition-all"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className={`text-3xl font-bold bg-gradient-to-r ${basket.color} bg-clip-text text-transparent`}>
+                    {basket.symbol}
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-white">
+                      ${price.toFixed(price < 0.01 ? 8 : 4)}
+                    </div>
+                    <div className={`text-sm ${change24h >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {change24h.toFixed(2)}%
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-lg font-semibold text-white">{basket.price}</div>
-                  <div className="text-sm text-emerald-400">{basket.change}</div>
+                
+                <div className="w-24 h-24 mx-auto mb-6">
+                  <img 
+                    src={basket.image}
+                    alt={basket.name}
+                    className="w-full h-full object-contain rounded-full"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://via.placeholder.com/150?text=${basket.symbol}`;
+                    }}
+                  />
                 </div>
-              </div>
-              
-              <p className="text-blue-200 mb-6">{basket.description}</p>
 
-              {account ? (
-                <button
-                  onClick={() => {
-                    setSelectedBasket(basket);
-                    setIsModalOpen(true);
-                  }}
-                  className={`w-full py-3 px-4 rounded-lg bg-gradient-to-r ${basket.color} text-white font-semibold hover:opacity-90 transition-all`}
-                >
-                  Place Bet
-                </button>
-              ) : (
-                <button
-                  onClick={connectWallet}
-                  className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all"
-                >
-                  Connect Wallet
-                </button>
-              )}
-            </div>
-          ))}
+                {/* Price Chart */}
+                <div 
+                  ref={chartRefs[basket.id]}
+                  className="w-full h-[100px] mb-6"
+                />
+                
+                <p className="text-blue-200 mb-6">{basket.description}</p>
+
+                {account ? (
+                  <button
+                    onClick={() => {
+                      setSelectedBasket(basket);
+                      setIsModalOpen(true);
+                    }}
+                    className={`w-full py-3 px-4 rounded-lg bg-gradient-to-r ${basket.color} text-white font-semibold hover:opacity-90 transition-all`}
+                  >
+                    Place Bet
+                  </button>
+                ) : (
+                  <button
+                    onClick={connectWallet}
+                    className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all"
+                  >
+                    Connect Wallet
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Stats Section */}
