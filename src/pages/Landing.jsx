@@ -16,50 +16,55 @@ function Landing() {
     {
       name: 'DOGE',
       image: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
-      delay: '0'
+      delay: '0',
+      color: 'from-yellow-400 to-orange-400'
     },
     {
       name: 'SHIB',
       image: 'https://assets.coingecko.com/coins/images/11939/large/shiba.png',
-      delay: '100'
+      delay: '100',
+      color: 'from-red-400 to-pink-400'
     },
     {
       name: 'PEPE',
       image: 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg',
-      delay: '200'
+      delay: '200',
+      color: 'from-green-400 to-emerald-400'
     },
     {
       name: 'FLOKI',
       image: 'https://assets.coingecko.com/coins/images/16746/large/PNG_image.png',
-      delay: '300'
+      delay: '300',
+      color: 'from-blue-400 to-indigo-400'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-[#0A0F1E] text-white overflow-hidden">
       {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-10 border-b border-white/10 backdrop-blur-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 backdrop-blur-md bg-[#0A0F1E]/80">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 group-hover:scale-110 transition-transform duration-300"></div>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 group-hover:scale-110 transition-transform duration-300 animate-pulse"></div>
               <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 MemeBaskets
               </span>
             </div>
             <Link 
               to="/app" 
-              className="relative px-6 py-2.5 group overflow-hidden rounded-lg transition-all duration-300"
+              className="relative px-6 py-2.5 group overflow-hidden rounded-xl transition-all duration-300"
             >
-              <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors"></div>
-              <div className="absolute inset-0 border border-white/20 rounded-lg group-hover:scale-105 transition-transform duration-300"></div>
-              <span className="relative z-10 flex items-center">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 group-hover:from-blue-500/30 group-hover:to-cyan-500/30 transition-colors"></div>
+              <div className="absolute inset-0 border border-white/20 rounded-xl group-hover:scale-105 transition-transform duration-300"></div>
+              <span className="relative z-10 flex items-center font-medium">
                 Launch App 
                 <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -71,48 +76,55 @@ function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative">
-        <div className="container mx-auto px-4 pt-20 pb-32">
+      <div className="relative pt-32">
+        <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto text-center">
             {/* Floating Coins */}
-            <div className="relative h-40 mb-12">
+            <div className="relative h-48 mb-12">
               <div className="absolute left-1/2 transform -translate-x-1/2">
                 {memeCoins.map((coin, index) => (
                   <div
                     key={coin.name}
                     className="absolute"
                     style={{
-                      transform: `rotate(${index * 90}deg) translateX(60px)`,
+                      transform: `rotate(${index * 90}deg) translateX(80px)`,
                       opacity: isVisible ? 1 : 0,
-                      transition: `all 0.6s ease-out ${coin.delay}ms`
+                      transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${coin.delay}ms`
                     }}
                   >
-                    <img 
-                      src={coin.image}
-                      alt={coin.name}
-                      className="w-16 h-16 rounded-full animate-float"
-                      style={{ animationDelay: `${coin.delay}ms` }}
-                    />
+                    <div className="relative group">
+                      <div className={`absolute inset-0 bg-gradient-to-r ${coin.color} rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity`}></div>
+                      <img 
+                        src={coin.image}
+                        alt={coin.name}
+                        className="relative w-20 h-20 rounded-full animate-float shadow-lg hover:scale-110 transition-transform duration-300"
+                        style={{ animationDelay: `${coin.delay}ms` }}
+                      />
+                    </div>
                   </div>
                 ))}
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur-xl animate-pulse"></div>
+                <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur-2xl animate-pulse"></div>
               </div>
             </div>
 
+            {/* Hero Text */}
             <h1 
-              className={`text-7xl font-bold mb-8 leading-tight transition-all duration-700 ${
+              className={`text-7xl font-bold mb-8 leading-tight transition-all duration-1000 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
             >
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">
                 The Future of
               </span>
               <br />
-              <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                Meme Coin Trading
+              <span className="relative">
+                <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">
+                  Meme Coin Trading
+                </span>
+                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-24 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-sm"></div>
               </span>
             </h1>
-            
+
             <p 
               className={`text-2xl text-blue-200 mb-12 max-w-3xl mx-auto leading-relaxed transition-all duration-700 delay-200 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'

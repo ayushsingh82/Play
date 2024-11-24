@@ -12,7 +12,12 @@ function BettingPage() {
   const [priceData, setPriceData] = useState({});
   const [chartData, setChartData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   const chartRefs = {
     1: useRef(null),
     2: useRef(null),
@@ -28,7 +33,8 @@ function BettingPage() {
       coingeckoId: 'dogecoin',
       image: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
       description: 'Much wow, very profit',
-      color: 'from-yellow-400 to-yellow-600'
+      color: 'from-yellow-400 to-orange-400',
+      delay: '0'
     },
     {
       id: 2,
@@ -37,7 +43,8 @@ function BettingPage() {
       coingeckoId: 'shiba-inu',
       image: 'https://assets.coingecko.com/coins/images/11939/large/shiba.png',
       description: 'To the moon with Shiba',
-      color: 'from-red-400 to-red-600'
+      color: 'from-red-400 to-pink-400',
+      delay: '100'
     },
     {
       id: 3,
@@ -46,7 +53,8 @@ function BettingPage() {
       coingeckoId: 'pepe',
       image: 'https://assets.coingecko.com/coins/images/29850/large/pepe-token.jpeg',
       description: 'Rare Pepes only',
-      color: 'from-green-400 to-green-600'
+      color: 'from-green-400 to-emerald-400',
+      delay: '200'
     },
     {
       id: 4,
@@ -55,7 +63,8 @@ function BettingPage() {
       coingeckoId: 'floki',
       image: 'https://assets.coingecko.com/coins/images/16746/large/PNG_image.png',
       description: 'Viking-approved gains',
-      color: 'from-blue-400 to-blue-600'
+      color: 'from-blue-400 to-indigo-400',
+      delay: '300'
     }
   ];
 
@@ -192,17 +201,34 @@ function BettingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-950 text-white">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#0A0F1E] text-white">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-purple-500/10 to-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-            Predict & Win
+          <h1 
+            className={`text-4xl font-bold mb-6 transition-all duration-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">
+              Predict & Win
+            </span>
           </h1>
-          <div className="flex justify-center items-center gap-4">
-            <div className="bg-blue-900/50 px-6 py-3 rounded-xl backdrop-blur-sm border border-blue-800/50">
+          <div 
+            className={`flex justify-center items-center gap-4 transition-all duration-700 delay-100 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <div className="bg-white/5 px-6 py-3 rounded-xl backdrop-blur-sm border border-white/10">
               <div className="text-sm text-blue-300 mb-1">Next Round Ends In</div>
-              <div className="text-2xl font-mono font-bold text-blue-100">
+              <div className="text-2xl font-mono font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                 {formatTime(timeLeft)}
               </div>
             </div>
@@ -210,7 +236,7 @@ function BettingPage() {
         </div>
 
         {/* Baskets Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {memeBaskets.map((basket) => {
             const price = priceData[basket.coingeckoId]?.usd || 0;
             const change24h = priceData[basket.coingeckoId]?.usd_24h_change || 0;
@@ -218,84 +244,103 @@ function BettingPage() {
             return (
               <div
                 key={basket.id}
-                className="group bg-blue-900/20 rounded-xl p-6 border border-blue-800/50 backdrop-blur-sm hover:border-blue-600 transition-all"
+                className={`group relative transition-all duration-700 ${
+                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                }`}
+                style={{ transitionDelay: `${basket.delay}ms` }}
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`text-3xl font-bold bg-gradient-to-r ${basket.color} bg-clip-text text-transparent`}>
-                    {basket.symbol}
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-semibold text-white">
-                      ${price.toFixed(price < 0.01 ? 8 : 4)}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-xl blur-xl group-hover:blur-2xl transition-all"></div>
+                <div className="relative bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`text-3xl font-bold bg-gradient-to-r ${basket.color} bg-clip-text text-transparent`}>
+                      {basket.symbol}
                     </div>
-                    <div className={`text-sm ${change24h >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {change24h.toFixed(2)}%
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-white">
+                        ${price.toFixed(price < 0.01 ? 8 : 4)}
+                      </div>
+                      <div className={`text-sm ${change24h >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {change24h.toFixed(2)}%
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="w-24 h-24 mx-auto mb-6">
-                  <img 
-                    src={basket.image}
-                    alt={basket.name}
-                    className="w-full h-full object-contain rounded-full"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = `https://via.placeholder.com/150?text=${basket.symbol}`;
-                    }}
-                  />
-                </div>
+                  
+                  <div className="w-24 h-24 mx-auto mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                    <div className="relative">
+                      <div className={`absolute inset-0 bg-gradient-to-r ${basket.color} rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity`}></div>
+                      <img 
+                        src={basket.image}
+                        alt={basket.name}
+                        className="relative w-full h-full object-contain rounded-full"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = `https://via.placeholder.com/150?text=${basket.symbol}`;
+                        }}
+                      />
+                    </div>
+                  </div>
 
-                {/* Price Chart */}
-                <div className="relative w-full h-[100px] mb-6">
-                  {loading ? (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    </div>
+                  {/* Price Chart */}
+                  <div className="relative w-full h-[100px] mb-6 bg-white/5 rounded-lg overflow-hidden">
+                    {loading ? (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                      </div>
+                    ) : (
+                      <div 
+                        ref={chartRefs[basket.id]}
+                        className="w-full h-full"
+                      />
+                    )}
+                  </div>
+                  
+                  <p className="text-blue-200 mb-6">{basket.description}</p>
+
+                  {account ? (
+                    <button
+                      onClick={() => {
+                        setSelectedBasket(basket);
+                        setIsModalOpen(true);
+                      }}
+                      className={`w-full py-3 px-4 rounded-lg bg-gradient-to-r ${basket.color} text-white font-semibold hover:opacity-90 transition-all`}
+                    >
+                      Place Bet
+                    </button>
                   ) : (
-                    <div 
-                      ref={chartRefs[basket.id]}
-                      className="w-full h-full"
-                    />
+                    <button
+                      onClick={connectWallet}
+                      className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold transition-all"
+                    >
+                      Connect Wallet
+                    </button>
                   )}
                 </div>
-                
-                <p className="text-blue-200 mb-6">{basket.description}</p>
-
-                {account ? (
-                  <button
-                    onClick={() => {
-                      setSelectedBasket(basket);
-                      setIsModalOpen(true);
-                    }}
-                    className={`w-full py-3 px-4 rounded-lg bg-gradient-to-r ${basket.color} text-white font-semibold hover:opacity-90 transition-all`}
-                  >
-                    Place Bet
-                  </button>
-                ) : (
-                  <button
-                    onClick={connectWallet}
-                    className="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all"
-                  >
-                    Connect Wallet
-                  </button>
-                )}
               </div>
             );
           })}
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+        <div 
+          className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-all duration-700 delay-500 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
           {[
             { label: 'Total Bets', value: '1,234' },
             { label: 'Total Volume', value: '$45,678' },
             { label: 'Active Users', value: '567' },
             { label: 'Average Win Rate', value: '32%' }
-          ].map((stat) => (
-            <div key={stat.label} className="bg-blue-900/20 rounded-xl p-6 border border-blue-800/50 backdrop-blur-sm">
+          ].map((stat, index) => (
+            <div 
+              key={stat.label} 
+              className="bg-white/5 rounded-xl p-6 border border-white/10 backdrop-blur-sm"
+              style={{ transitionDelay: `${600 + index * 100}ms` }}
+            >
               <div className="text-sm text-blue-300 mb-1">{stat.label}</div>
-              <div className="text-2xl font-bold text-white">{stat.value}</div>
+              <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                {stat.value}
+              </div>
             </div>
           ))}
         </div>
