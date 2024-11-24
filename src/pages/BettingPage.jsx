@@ -187,13 +187,6 @@ function BettingPage() {
     });
   }, [chartData]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 300));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -227,9 +220,9 @@ function BettingPage() {
             }`}
           >
             <div className="bg-white/5 px-6 py-3 rounded-xl backdrop-blur-sm border border-white/10">
-              <div className="text-sm text-blue-300 mb-1">Next Round Ends In</div>
+              <div className="text-sm text-blue-300 mb-1">Round Status</div>
               <div className="text-2xl font-mono font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                {formatTime(timeLeft)}
+                Not Started
               </div>
             </div>
           </div>
@@ -281,17 +274,74 @@ function BettingPage() {
                   </div>
 
                   {/* Price Chart */}
-                  <div className="relative w-full h-[100px] mb-6 bg-white/5 rounded-lg overflow-hidden">
-                    {loading ? (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  <div className="relative w-full h-[120px] mb-6 bg-white/5 rounded-lg overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shine"></div>
+                    <div className="h-full flex items-center justify-between px-6">
+                      {/* Left Section - Price Change */}
+                      <div className="space-y-2">
+                        <div className="text-sm text-blue-200">24h Trend</div>
+                        <div className={`text-2xl font-bold flex items-center gap-2 ${change24h >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {change24h >= 0 ? (
+                            <svg className="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                          ) : (
+                            <svg className="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" />
+                            </svg>
+                          )}
+                         
+                        </div>
                       </div>
-                    ) : (
+
+                      {/* Center Section - Visual Bars */}
+                      <div className="flex items-end space-x-1 h-16">
+                        {[...Array(8)].map((_, i) => {
+                          const randomHeight = 20 + Math.random() * 40;
+                          const isPositive = change24h >= 0;
+                          return (
+                            <div
+                              key={i}
+                              className={`w-2 rounded-t-full transition-all duration-500 ${
+                                isPositive 
+                                  ? 'bg-emerald-400/40 group-hover:bg-emerald-400' 
+                                  : 'bg-red-400/40 group-hover:bg-red-400'
+                              }`}
+                              style={{
+                                height: `${randomHeight}px`,
+                                transitionDelay: `${i * 50}ms`,
+                                animation: 'pulse 2s infinite'
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      {/* Right Section - Market Stats */}
+                      <div className="space-y-2 text-right">
+                        <div className="text-sm text-blue-200">Win Rate</div>
+                        <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                          {(Math.random() * 20 + 60).toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Progress Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
                       <div 
-                        ref={chartRefs[basket.id]}
-                        className="w-full h-full"
+                        className={`h-full transition-all duration-500 ${
+                          change24h >= 0 ? 'bg-emerald-400' : 'bg-red-400'
+                        }`}
+                        style={{ 
+                          width: `${Math.min(Math.abs(change24h) * 2, 100)}%`,
+                          marginLeft: change24h >= 0 ? '0' : 'auto',
+                          marginRight: change24h >= 0 ? 'auto' : '0'
+                        }}
                       />
-                    )}
+                    </div>
+
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   
                   <p className="text-blue-200 mb-6">{basket.description}</p>
